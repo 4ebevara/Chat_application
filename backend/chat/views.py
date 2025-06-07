@@ -9,8 +9,11 @@ class ChatViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Показываем только чаты, где участвует текущий пользователь
         return self.queryset.filter(participants=self.request.user)
+
+    def perform_create(self, serializer):
+        chat = serializer.save()
+        chat.participants.add(self.request.user)
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
