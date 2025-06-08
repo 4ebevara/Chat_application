@@ -1,55 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Тест WebSocket</title>
+    <title>WS Test</title>
 </head>
 <body>
-    <h2>Тест WebSocket</h2>
-
-    <label>Chat ID: </label>
-    <input type="text" id="chat-id" value="1">
-    <button onclick="connect()">Connect</button>
-
-    <div id="status"></div>
-
-    <div id="chat" style="margin-top: 20px;">
-        <input type="text" id="message-input" placeholder="Введите сообщение...">
-        <button onclick="sendMessage()">Отправить</button>
-    </div>
-
-    <div id="messages" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px;"></div>
+    <h1>Test WebSocket</h1>
+    <input id="chat-id" placeholder="Chat ID" value="1"><br><br>
+    <textarea id="log" rows="10" cols="50" readonly></textarea><br>
+    <input id="message-input" type="text" placeholder="Enter message">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="connectWS()">Connect</button>
 
     <script>
-        let socket = null;
+        let socket;
 
-        function connect() {
+        function connectWS() {
             const chatId = document.getElementById("chat-id").value;
-            const url = `ws://${window.location.host}/ws/chat/${chatId}/`;
-            socket = new WebSocket(url);
+            socket = new WebSocket(`ws://${window.location.host}/ws/chat/${chatId}/`);
 
-            socket.onopen = () => {
-                document.getElementById("status").innerText = "✅ Соединение установлено";
-            };
-
-            socket.onmessage = (e) => {
+            socket.onmessage = function(e) {
                 const data = JSON.parse(e.data);
-                const messages = document.getElementById("messages");
-                messages.innerHTML += `<p><strong>${data.user}:</strong> ${data.message}</p>`;
+                document.getElementById("log").value += `${data.user}: ${data.message}\n`;
             };
 
-            socket.onclose = () => {
-                document.getElementById("status").innerText = "❌ Соединение закрыто";
+            socket.onclose = function(e) {
+                document.getElementById("log").value += "❌ Соединение закрыто\n";
             };
         }
 
         function sendMessage() {
-            const input = document.getElementById("message-input");
-            const message = input.value;
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({ message }));
-                input.value = "";
-            }
+            const messageInput = document.getElementById("message-input");
+            const message = messageInput.value;
+            socket.send(JSON.stringify({ message: message }));
+            messageInput.value = "";
         }
     </script>
 </body>

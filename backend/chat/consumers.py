@@ -1,4 +1,3 @@
-import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 class ChatConsumer(AsyncJsonWebsocketConsumer):
@@ -14,12 +13,15 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content):
         message = content.get("message")
+        if not message:
+            return  # Защита от пустых сообщений
+
         user = self.scope["user"].username if self.scope["user"].is_authenticated else "Anonymous"
 
         await self.channel_layer.group_send(
             self.group_name,
             {
-                "type": "chat_message",  # 🟢 исправлено!
+                "type": "chat_message",  # Важно: должен совпадать с методом ниже
                 "message": message,
                 "user": user,
             }

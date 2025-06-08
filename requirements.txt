@@ -4,3 +4,4 @@ djangorestframework
 djangorestframework-simplejwt
 channels>=4.0
 channels-redis
+daphne>=4.0.0
