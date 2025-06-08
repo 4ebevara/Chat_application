@@ -1,37 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WS Test</title>
+    <title>WebSocket Chat Test</title>
 </head>
 <body>
     <h1>Test WebSocket</h1>
-    <input id="chat-id" placeholder="Chat ID" value="1"><br><br>
-    <textarea id="log" rows="10" cols="50" readonly></textarea><br>
+    
+    <label>Chat ID:</label>
+    <input id="chat-id" placeholder="Chat ID" value="1">
+    <button onclick="connectWS()">🔌 Connect</button>
+    <br><br>
+
+    <textarea id="log" rows="15" cols="60" readonly></textarea><br>
+    
     <input id="message-input" type="text" placeholder="Enter message">
-    <button onclick="sendMessage()">Send</button>
-    <button onclick="connectWS()">Connect</button>
+    <button onclick="sendMessage()">📨 Send</button>
 
     <script>
         let socket;
 
+        function log(msg) {
+            const logArea = document.getElementById("log");
+            logArea.value += msg + "\n";
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
         function connectWS() {
             const chatId = document.getElementById("chat-id").value;
-            socket = new WebSocket(`ws://${window.location.host}/ws/chat/${chatId}/`);
+            const url = `ws://${window.location.host}/ws/chat/${chatId}/`;
 
-            socket.onmessage = function(e) {
-                const data = JSON.parse(e.data);
-                document.getElementById("log").value += `${data.user}: ${data.message}\n`;
-            };
+            socket = new WebSocket(url);
 
-            socket.onclose = function(e) {
-                document.getElementById("log").value += "❌ Соединение закрыто\n";
+            socket.onopen = () => log("✅ WebSocket connected to " + url);
+            socket.onmessage = (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    log(`📥 ${data.message}`);
+                } catch (err) {
+                    log("⚠️ Error parsing message: " + e.data);
+                }
             };
+            socket.onclose = () => log("❌ WebSocket connection closed");
+            socket.onerror = (e) => log("⚠️ WebSocket error: " + e.message);
         }
 
         function sendMessage() {
             const messageInput = document.getElementById("message-input");
-            const message = messageInput.value;
-            socket.send(JSON.stringify({ message: message }));
+            const message = messageInput.value.trim();
+
+            if (!message || socket.readyState !== WebSocket.OPEN) {
+                log("⚠️ Cannot send message: WebSocket is not open or message is empty");
+                return;
+            }
+
+            const data = { message: message };
+            socket.send(JSON.stringify(data));
+            log("📤 Sent: " + message);
             messageInput.value = "";
         }
     </script>

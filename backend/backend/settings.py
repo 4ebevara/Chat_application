@@ -86,7 +86,7 @@ ROOT_URLCONF = 'backend.urls'
 
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+
 
 
 TEMPLATES = [
