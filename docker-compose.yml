@@ -1,17 +1,10 @@
-version: '3.9'
+
 
 services:
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-
   web:
     build: .
-    command: python backend/manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app
-    working_dir: /app
+      - ./backend:/app
     ports:
       - "8000:8000"
     depends_on:
@@ -19,13 +12,15 @@ services:
       - redis
 
   db:
-    image: postgres:15
+    image: postgres:14
     environment:
       POSTGRES_DB: chat_db
-      POSTGRES_USER: chat_user
-      POSTGRES_PASSWORD: chat_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      POSTGRES_USER: asyl
+      POSTGRES_PASSWORD: 20061960
+    ports:
+      - "5432:5432"
 
-volumes:
-  postgres_data:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"

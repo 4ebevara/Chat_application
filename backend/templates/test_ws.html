@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Тест WebSocket</title>
+</head>
+<body>
+    <h2>Тест WebSocket</h2>
+
+    <label>Chat ID: </label>
+    <input type="text" id="chat-id" value="1">
+    <button onclick="connect()">Connect</button>
+
+    <div id="status"></div>
+
+    <div id="chat" style="margin-top: 20px;">
+        <input type="text" id="message-input" placeholder="Введите сообщение...">
+        <button onclick="sendMessage()">Отправить</button>
+    </div>
+
+    <div id="messages" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px;"></div>
+
+    <script>
+        let socket = null;
+
+        function connect() {
+            const chatId = document.getElementById("chat-id").value;
+            const url = `ws://${window.location.host}/ws/chat/${chatId}/`;
+            socket = new WebSocket(url);
+
+            socket.onopen = () => {
+                document.getElementById("status").innerText = "✅ Соединение установлено";
+            };
+
+            socket.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                const messages = document.getElementById("messages");
+                messages.innerHTML += `<p><strong>${data.user}:</strong> ${data.message}</p>`;
+            };
+
+            socket.onclose = () => {
+                document.getElementById("status").innerText = "❌ Соединение закрыто";
+            };
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("message-input");
+            const message = input.value;
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ message }));
+                input.value = "";
+            }
+        }
+    </script>
+</body>
+</html>

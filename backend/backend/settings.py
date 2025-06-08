@@ -61,13 +61,13 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
-ASGI_APPLICATION = 'backend.asgi.application'    # ← указываем ASGI точку входа
+ASGI_APPLICATION = "backend.routing.application"
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],            # имя сервиса Redis из docker-compose
+            "hosts": [("redis", 6379)],
         },
     },
 }
@@ -84,20 +84,26 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],  # ← тут можно HTML-шаблоны вне приложения
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
-]
+]   
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
@@ -109,10 +115,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'chat_db',
-        'USER': 'chat_user',
-        'PASSWORD': 'chat_pass',
+        'USER': 'asyl',
+        'PASSWORD': '20061960',
         'HOST': 'db',
-        'PORT': 5432,
+        'PORT': '5432',
     }
 }
 
